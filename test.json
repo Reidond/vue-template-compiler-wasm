@@ -1,0 +1,4 @@
+{
+  "mountId": "some-id",
+  "sfcCode": "<template><p>{{ hello }}</p></template><script>export default { data() { return { hello: 'hello' } } };</script><style scoped>p { color: red; }</style>"
+}

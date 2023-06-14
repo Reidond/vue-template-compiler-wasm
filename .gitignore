@@ -1,0 +1,3 @@
+node/dist
+node/node_modules
+wasm/*.wasm

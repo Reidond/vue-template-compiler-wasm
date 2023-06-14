@@ -1,0 +1,22 @@
+{
+  "name": "vue-template-compiler-wasm",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "cat test.json | wasmtime ../wasm/vue-template-compiler.wasm",
+    "build": "npm run build:js && npm run build:wasm",
+    "build:js": "microbundle -i index.js -o dist/vue-template-compiler-wasm.js --no-pkg-main -f modern",
+    "build:wasm": "javy compile dist/vue-template-compiler-wasm.js -o ../wasm/vue-template-compiler.wasm"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "microbundle": "^0.15.1",
+    "outdent": "^0.8.0",
+    "vue-loader": "^17.2.2",
+    "vue-template-compiler": "^2.7.14"
+  }
+}
