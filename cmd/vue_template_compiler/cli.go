@@ -1,19 +1,15 @@
 package main
 
 import (
-	"bytes"
-	"context"
 	_ "embed"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 
-	"github.com/Reidond/vue-template-compiler-wasm/wasm"
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
-	"github.com/tetratelabs/wazero/sys"
+	"github.com/Reidond/vue-template-compiler-wasm/internal/compiler"
 )
 
 func main() {
@@ -31,35 +27,21 @@ func main() {
 		log.Fatalf("Cannot find given file")
 	}
 
-	in := bytes.NewReader(body)
-	out := new(bytes.Buffer)
-	stderr := new(bytes.Buffer)
-
-	// Choose the context to use for function calls.
-	ctx := context.Background()
-
-	// Create a new WebAssembly Runtime.
-	r := wazero.NewRuntime(ctx)
-	defer r.Close(ctx) // This closes everything this Runtime created.
-
-	// Combine the above into our baseline config, overriding defaults.
-	config := wazero.NewModuleConfig().
-		// By default, I/O streams are discarded and there's no file system.
-		WithStdin(in).WithStdout(out).WithStderr(stderr)
-
-	wasi_snapshot_preview1.MustInstantiate(ctx, r)
-
-	// InstantiateModule runs the "_start" function, WASI's "main".
-	_, err = r.InstantiateWithConfig(ctx, wasm.VueTemplateCompilerWasm, config)
+	var wasmInput compiler.WasmInput
+	err = json.Unmarshal(body, &wasmInput)
 	if err != nil {
-		// Note: Most compilers do not exit the module after running "_start",
-		// unless there was an error. This allows you to call exported functions.
-		if exitErr, ok := err.(*sys.ExitError); ok && exitErr.ExitCode() != 0 {
-			fmt.Fprintf(os.Stderr, "exit_code: %d\n", exitErr.ExitCode())
-		} else if !ok {
-			log.Panicln(err)
-		}
+		log.Fatalf("Cannot unmarshal given file, Err: %v", err)
 	}
 
-	fmt.Printf("%s", out.String())
+	out, err := compiler.CompileSfcCode(wasmInput.SfcCode, wasmInput.MountID)
+	if err != nil {
+		log.Fatalf("Cannot compile given file, Err: %v", err)
+	}
+
+	outMarshal, err := json.Marshal(out)
+	if err != nil {
+		log.Fatalf("Cannot marshal given file, Err: %v", err)
+	}
+
+	fmt.Printf("%s", string(outMarshal))
 }
