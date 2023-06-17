@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Package",
+      "name": "vue_template_compiler -fp ./test.json",
       "type": "go",
       "request": "launch",
       "mode": "auto",
@@ -13,6 +13,25 @@
       "program": "${workspaceFolder}/cmd/vue_template_compiler",
       "args": ["-fp", "./test.json"],
       "preLaunchTask": "npm: build"
+    },
+    {
+      "name": "test_web_server",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/cmd/test_web_server",
+      "preLaunchTask": "npm: build"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "web/nuxt_streaming_vue_wasm/node_modules/.bin/nuxi dev",
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}/web/nuxt_streaming_vue_wasm",
+      "program": "node_modules/.bin/nuxi",
+      "args": ["dev"],
+      "console": "internalConsole"
     }
   ]
 }
