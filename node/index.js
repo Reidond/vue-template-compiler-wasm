@@ -64,13 +64,22 @@ function getExportDefaultCode(code) {
 function createVueApp(mountId, componentDescriptor) {
   const code = getExportDefaultCode(componentDescriptor.script.content);
 
-  return outdent`
-    const app = new Vue({
+  const appCode = outdent`
+    import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.prod.js'
+    const app = createApp({
       template: '${componentDescriptor.template.content}',
       ${code}
     });
-    app.mount("${mountId}");\n
+    app.mount("#${mountId}");\n
   `;
+  const styleCode = componentDescriptor.styles.map(
+    (style) => `#${mountId} { ${style.content} }`
+  );
+
+  return {
+    appCode,
+    styleCode,
+  };
 }
 
 // Read input from stdin
@@ -86,4 +95,4 @@ const sfcDescriptor = compiler.parseComponent(input.sfcCode);
 const vueApp = createVueApp(input.mountId, sfcDescriptor);
 
 // Write the result to stdout
-writeOutput(vueApp);
+writeOutput(JSON.stringify(vueApp));
